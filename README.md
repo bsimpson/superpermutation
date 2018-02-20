@@ -48,6 +48,16 @@ $ ruby -r "./superpermutation.rb" -e "Superpermutation.pretty(3)"
 Shortest string is '123121321'
 ```
 
+Or in Node:
+
+```
+$ node -p "require('./superpermutation.js').pretty(2)"
+Shortest string is '121'
+
+$ node -p "require('./superpermutation.js').pretty(3)"
+Shortest string is '123121321'
+```
+
 Testing:
 
 Tests are written in minitest
