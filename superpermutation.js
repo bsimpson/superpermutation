@@ -2,13 +2,19 @@ module.exports = (() => {
   function calc(val) {
     let i = 1;
     const a = Array.from({length: val}, () => i++);
-    const products = permutations(a).map((x) => x.join('')); // ["12", "21"]
-    const permutationsOfProducts = permutations(products); // [['12', '21'], ['21', '12']]
+    let products = [];
+    let generator1 = permutations(a);
+    while((p = generator1.next().value) !== undefined) {
+      products.push(p);
+    }
+    products = products.map((x) => x.join('')); // ["12", "21"]
+
+    let generator2 = permutations(products); // [['12', '21'], ['21', '12']]
     let shortestString = null;
     let testString = '';
 
-    permutationsOfProducts.forEach((products) => { // ['12', '21']
-      testString = products.reduce((sum, product) => { // '12'
+    while ((p = generator2.next().value) != undefined) { // ['12', '21']
+      testString = p.reduce((sum, product) => { // '12'
         if (sum.search(product) > -1) {
           // string already contains combination - do nothing
           return sum;
@@ -33,9 +39,10 @@ module.exports = (() => {
       }, '');
 
       if (shortestString == null || (shortestString.length > testString.length)) {
+        console.log(`New shortest superpermutation: '${shortestString}'`);
         shortestString = testString;
       }
-    });
+    };
 
     return shortestString;
   }
@@ -44,30 +51,24 @@ module.exports = (() => {
     return `Shortest string is '${calc(val)}'`;
   }
 
-  // https://gist.github.com/viebel/5cc67a97903f04036b569c0eb0436e5f
-  function permutations(arr) {
-    var permArr = [],
-      usedChars = [];
-
-    function permute(input) {
-      var i, ch;
-      for (i = 0; i < input.length; i++) {
-        ch = input.splice(i, 1)[0];
-        usedChars.push(ch);
-        if (input.length == 0) {
-          permArr.push(usedChars.slice());
+  // https://lowrey.me/permutation-with-an-es6-javascript-generator-2/
+  function* permutations(elements) {
+    if (elements.length === 1) {
+      yield elements;
+    } else {
+      let [first, ...rest] = elements;
+      for (let perm of permutations(rest)) {
+        for (let i = 0; i < elements.length; i++) {
+          let start = perm.slice(0, i);
+          let rest = perm.slice(i);
+          yield [...start, first, ...rest];
         }
-        permute(input);
-        input.splice(i, 0, ch);
-        usedChars.pop();
       }
-      return permArr;
-    };
-    return permute(arr);
+    }
   };
 
   return {
     calc: calc,
-    pretty: pretty
+    pretty: pretty,
   }
 })();
